@@ -1,18 +1,34 @@
-import Image from 'next/image'
-import { Inter } from 'next/font/google'
-import { useRouter } from 'next/router'
+// pages/index.js
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import Link from "next/link";
+import MovieList from "@/component/MovieList";
 
-const inter = Inter({ subsets: ['latin'] })
-
-export default function Home() {
-  const router=useRouter()
-  
+const Home = ({ movies }) => {
   return (
-    <main
-    
-      className={`flex min-h-screen flex-col items-center justify-between p-24 ${inter.className}`}
-    >
-      
-    </main>
-  )
+    <div>
+      <MovieList movies={movies} />
+    </div>
+  );
+};
+export async function getServerSideProps() {
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/movies`);
+    const movies = await res.json(); // Parse the response as JSON
+
+    return {
+      props: {
+        movies,
+      },
+    };
+  } catch (error) {
+    console.error("Error fetching data:", error);
+
+    return {
+      props: {
+        movies: [],
+      },
+    };
+  }
 }
+export default Home;
