@@ -61,7 +61,7 @@ const AddMovie = () => {
         />
         <br />
 
-        <div className="flex justify-end">
+        <div className="flex justify-end mt-5">
           <button
             type="submit"
             className="   rounded hover:underline py-2 px-4 text-white bg-[#6558F5]"
