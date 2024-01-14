@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/router';
-
+import React, { useState, useEffect } from "react";
+import Link from "next/link";
+import { useRouter } from "next/router";
+import { faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 const MovieList = ({ movies }) => {
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [filteredMovies, setFilteredMovies] = useState([]);
-    const router =useRouter()
+  const router = useRouter();
   useEffect(() => {
     const filtered = movies?.filter((movie) =>
       movie.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -18,70 +19,75 @@ const MovieList = ({ movies }) => {
       const res = await fetch(`/api/movies/${movieId}`, {
         method: "DELETE",
       });
-  
+
       if (!res.ok) {
         console.error(`Failed to delete movie with ID ${movieId}`);
         return;
       }
-  
+
       console.log(`Movie with ID ${movieId} deleted successfully`);
-  
-      window.location.reload()
-  
+
+      window.location.reload();
     } catch (error) {
       console.error(`Error deleting movie with ID ${movieId}:`, error);
     }
   };
-  
 
   return (
-    <div>
-      <h1 className="text-3xl font-bold mb-4">Movie List</h1>
-      <div className="mb-4">
+    <div className="px-4 lg:px-6">
+      <h1 className="text-2xl lg:text-4xl font-400 mb-6 mt-10">
+        The best movie reviews site!
+      </h1>
+      <div className="mb-10">
         <input
           type="text"
-          placeholder="Search by movie name"
+          placeholder="Search for your favourite movie"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="p-2 border border-gray-300 rounded"
+          className="px-2 py-3  border outline-[#6459F5] rounded w-full max-w-md "
         />
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {filteredMovies.map((movie) => (
-          <button key={movie._id}                 onClick={(e) =>{e.stopPropagation();router.push(`/movies/${movie._id}`)} }
-           className="bg-blue-100 p-4 rounded">
-            <h2 className="text-xl font-bold mb-2">{movie.name}</h2>
-            <p>Released on {new Date(movie.releaseDate).toDateString()}</p>
+          <button
+            key={movie._id}
+            onClick={(e) => {
+              e.stopPropagation();
+              router.push(`/movies/${movie._id}`);
+            }}
+            className="bg-[#E0DFFC] p-4 rounded text-left text-gray-700"
+          >
+            <h2 className="text-xl font-700 mb-2 line-clamp-1">{movie.name}</h2>
+            <p className="italic">
+              Released on {new Date(movie.releaseDate).toDateString()}
+            </p>
             {movie.averageRating && (
-              <p className="text-sm mt-2">Rating: {movie.averageRating}/10</p>
+              <p className="text-base mt-2 font-extrabold">
+                Rating: {movie.averageRating}/10
+              </p>
             )}
             <div className="mt-4 space-x-2">
-                <button 
-                
-                onClick={(e) =>{e.stopPropagation();router.push(`/movies/edit/${movie._id}`)} }
-
-                className="text-blue-500">Edit</button>
-              <button
-                onClick={(e) =>{e.stopPropagation();handleDelete(movie._id)} }
-                className="text-red-500 cursor-pointer"
-              >
-                Delete
-              </button>
+              <div className=" m-2 flex justify-end gap-4">
+                <FontAwesomeIcon
+                  icon={faEdit}
+                  className="text-gray-500 cursor-pointer mr-2"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    router.push(`/movies/edit/${movie._id}`);
+                  }}
+                />
+                <FontAwesomeIcon
+                  icon={faTrash}
+                  className="text-gray-500 cursor-pointer"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDelete(movie._id);
+                  }}
+                />
+              </div>
             </div>
           </button>
         ))}
-      </div>
-      <div className="flex gap-4 mt-4">
-        <Link href="/movies/add">
-          <button className="bg-blue-500 text-white py-2 px-4 rounded">
-            Add a Movie
-          </button>
-        </Link>
-        <Link href="/reviews/add">
-          <button className="bg-blue-500 text-white py-2 px-4 rounded">
-            Add a Review
-          </button>
-        </Link>
       </div>
     </div>
   );

@@ -1,5 +1,6 @@
 // models/MovieModel.js
 import mongoose from "mongoose";
+import ReviewModel from "./ReviewModel";
 
 const movieSchema = new mongoose.Schema({
   name: {
@@ -14,6 +15,7 @@ const movieSchema = new mongoose.Schema({
     type: Number,
     default: null,
   },
+  reviews: [ReviewModel.schema], // Use .schema to include the schema in the array
 });
 
 const MovieModel =

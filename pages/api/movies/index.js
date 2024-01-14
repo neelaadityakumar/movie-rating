@@ -6,12 +6,12 @@ export default async function handler(req, res) {
     await connect();
 
     if (req.method === "GET") {
-      const movies = await MovieModel.find({});
+      const movies = await MovieModel.find({}).populate("reviews");
       res.status(200).json(movies);
     }
 
     if (req.method === "POST") {
-      const { name, releaseDate } = req.body;
+      const { name, releaseDate, rating = null } = req.body;
 
       if (!name || !releaseDate) {
         return res
@@ -22,6 +22,8 @@ export default async function handler(req, res) {
       const newMovie = new MovieModel({
         name,
         releaseDate,
+        averageRating: rating,
+        reviews: [], // Initialize reviews as an empty array
       });
 
       await newMovie.save();
