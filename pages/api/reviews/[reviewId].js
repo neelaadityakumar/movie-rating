@@ -10,9 +10,12 @@ export default async function handler(req, res) {
     const { reviewId } = req.query;
 
     try {
-      // Convert reviewId to ObjectId
-      const objectIdReviewId = new ObjectId(reviewId);
+      // Validate if reviewId is a valid ObjectId
+      if (!ObjectId.isValid(reviewId)) {
+        return res.status(400).json({ error: "Invalid reviewId format" });
+      }
 
+      const objectIdReviewId = new ObjectId(reviewId);
       const { reviewerName, rating, comments } = req.body;
 
       const updatedReview = await ReviewModel.findByIdAndUpdate(
@@ -25,6 +28,15 @@ export default async function handler(req, res) {
         return res.status(404).json({ error: "Review not found" });
       }
 
+      const movie = await MovieModel.findOneAndUpdate(
+        { _id: updatedReview.movieId },
+        { $pull: { reviews: objectIdReviewId } },
+        { new: true }
+      );
+      movie.calculateAverageRating();
+
+      await movie.save();
+
       res.status(200).json(updatedReview);
     } catch (error) {
       console.error("Error updating review:", error);
@@ -34,21 +46,29 @@ export default async function handler(req, res) {
 
   if (req.method === "DELETE") {
     let { reviewId } = req.query;
-    reviewId = new ObjectId(reviewId);
 
     try {
+      // Validate if reviewId is a valid ObjectId
+      if (!ObjectId.isValid(reviewId)) {
+        return res.status(400).json({ error: "Invalid reviewId format" });
+      }
+
+      reviewId = new ObjectId(reviewId);
+
       const deletedReview = await ReviewModel.findByIdAndDelete(reviewId);
 
       if (!deletedReview) {
         return res.status(404).json({ error: "Review not found" });
       }
 
-      // Remove the deleted review from the associated movie's reviews array
       const movie = await MovieModel.findOneAndUpdate(
         { _id: deletedReview.movieId },
         { $pull: { reviews: reviewId } },
         { new: true }
       );
+      movie.calculateAverageRating();
+
+      await movie.save();
 
       res.status(200).json({ message: "Review deleted successfully" });
     } catch (error) {

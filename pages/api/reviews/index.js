@@ -6,54 +6,88 @@ import { ObjectId } from "mongodb"; // Import ObjectId from the MongoDB library
 export default async function handler(req, res) {
   await connect();
 
-  if (req.method === "GET") {
-    const { movieId } = req.query;
-
-    try {
+  try {
+    if (req.method === "GET") {
+      const { movieId } = req.query;
       const reviews = await ReviewModel.find({ movieId });
       res.status(200).json(reviews);
-    } catch (error) {
-      res.status(500).json({ error: "Error fetching reviews" });
-    }
-  }
+    } else if (req.method === "POST") {
+      let { movieId, reviewerName, rating, comments } = req.body;
+      movieId = new ObjectId(movieId);
 
-  if (req.method === "POST") {
-    const { movieId, reviewerName, rating, comments } = req.body;
+      try {
+        if (!ObjectId.isValid(movieId)) {
+          res.status(400).json({ error: "Invalid movieId" });
+          return;
+        }
 
-    try {
-      const movie = await MovieModel.findById(movieId);
+        const movie = await MovieModel.findById(movieId);
 
-      if (!movie) {
-        res.status(404).json({ error: "Movie not found" });
-        return;
+        if (!movie) {
+          res.status(404).json({ error: "Movie not found" });
+          return;
+        }
+
+        const newReview = new ReviewModel({
+          movieId,
+          reviewerName,
+          rating,
+          comments,
+        });
+
+        await newReview.save();
+        movie.reviews.push(newReview);
+        movie.calculateAverageRating();
+
+        await movie.save();
+
+        res.status(201).json(newReview);
+      } catch (error) {
+        console.error("Error adding review:", error);
+        res.status(500).json({ error: "Error adding review" });
       }
+    } else if (req.method === "POST") {
+      const { movieId, reviewerName, rating, comments } = req.body;
 
-      const newReview = new ReviewModel({
-        movieId,
-        reviewerName,
-        rating,
-        comments,
-      });
+      try {
+        if (!ObjectId.isValid(movieId)) {
+          res.status(400).json({ error: "Invalid movieId" });
+          return;
+        }
 
-      await newReview.save();
-      movie.reviews.push(newReview);
-      await movie.save();
+        const movie = await MovieModel.findById(movieId);
 
-      res.status(201).json(newReview);
-    } catch (error) {
-      res.status(500).json({ error: "Error adding review" });
-    }
-  }
+        if (!movie) {
+          res.status(404).json({ error: "Movie not found" });
+          return;
+        }
 
-  if (req.method === "DELETE") {
-    let { reviewId } = req.query;
-    reviewId = new ObjectId(reviewId);
+        const newReview = new ReviewModel({
+          movieId,
+          reviewerName,
+          rating,
+          comments,
+        });
 
-    try {
+        await newReview.save();
+        movie.reviews.push(newReview);
+        movie.calculateAverageRating();
+
+        await movie.save();
+
+        res.status(201).json(newReview);
+      } catch (error) {
+        console.error("Error adding review:", error);
+        res.status(500).json({ error: "Error adding review" });
+      }
+    } else if (req.method === "DELETE") {
+      let { reviewId } = req.query;
+      reviewId = new ObjectId(reviewId);
+
       const deletedReview = await ReviewModel.findByIdAndDelete(reviewId);
 
       if (!deletedReview) {
-        return res.status(404).json({ error: "Review not found" });
+        throw { statusCode: 404, message: "Review not found" };
       }
 
       // Remove the deleted review from the associated movie's reviews array
@@ -62,12 +96,19 @@ export default async function handler(req, res) {
         { $pull: { reviews: reviewId } },
         { new: true }
       );
+      movie.calculateAverageRating(); // Recalculate average rating
+      await movie.save();
 
       res.status(200).json({ message: "Review deleted successfully" });
-    } catch (error) {
-      res.status(500).json({ error: "Error deleting review" });
+    } else {
+      res.status(405).json({ error: "Method Not Allowed" });
     }
+  } catch (error) {
+    const statusCode = error.statusCode || 500;
+    res
+      .status(statusCode)
+      .json({ error: error.message || "Internal Server Error" });
+  } finally {
+    await disconnect();
   }
-
-  await disconnect();
 }

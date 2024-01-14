@@ -23,7 +23,22 @@ const reviewSchema = new mongoose.Schema({
   },
 });
 
-// const ReviewModel = mongoose.model("Review", reviewSchema);
+// Add a static method to calculate the average rating
+reviewSchema.statics.calculateAverageRating = async function (movieId) {
+  const reviews = await this.find({ movieId });
+  const totalReviews = reviews.length;
+
+  if (totalReviews === 0) {
+    return null;
+  } else {
+    const sumOfRatings = reviews.reduce(
+      (total, review) => total + review.rating,
+      0
+    );
+    return parseFloat((sumOfRatings / totalReviews).toFixed(2));
+  }
+};
+
 const ReviewModel =
   mongoose.models.Review || mongoose.model("Review", reviewSchema);
 

@@ -3,23 +3,17 @@ import { useRouter } from "next/router";
 
 const AddMovie = () => {
   const [name, setName] = useState("");
-  const [rating, setRating] = useState("");
-
   const [releaseDate, setReleaseDate] = useState("");
   const router = useRouter();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Simple validation
     if (!name || !releaseDate) {
       console.error("Name and Release Date are required.");
       return;
     }
-    let reqData = { name, releaseDate };
-    if (rating) {
-      reqData = { ...reqData, rating };
-    }
+    const reqData = { name, releaseDate };
 
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/movies`, {
@@ -67,15 +61,6 @@ const AddMovie = () => {
         />
         <br />
 
-        <input
-          type="number"
-          max={10}
-          value={rating}
-          placeholder="Rating out of 10"
-          className="my-4 w-full max-w-[300px] px-2 py-1"
-          onChange={(e) => setRating(e.target.value)}
-        />
-        <br />
         <div className="flex justify-end">
           <button
             type="submit"

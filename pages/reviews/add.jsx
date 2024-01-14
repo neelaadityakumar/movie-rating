@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 
 const AddReview = ({ movies }) => {
-  const [selectedMovieId, setSelectedMovieId] = useState("");
+  const [selectedMovieId, setSelectedMovieId] = useState(movies[0]._id);
   const [reviewerName, setReviewerName] = useState("");
   const [rating, setRating] = useState("");
   const [comments, setComments] = useState("");
@@ -37,7 +37,6 @@ const AddReview = ({ movies }) => {
       console.error("Error adding review:", error);
     }
   };
-
   return (
     <div className="container px-4 lg:px-6 max-w-[300px] mx-auto">
       <h1 className="text-2xl font-500 mb-6 mt-10">Add new Review </h1>
@@ -47,9 +46,6 @@ const AddReview = ({ movies }) => {
           onChange={(e) => setSelectedMovieId(e.target.value)}
           className="w-full max-w-[300px] bg-white border-black border py-1"
         >
-          <option value="Select a movie" disabled>
-            Select a movie
-          </option>
           {movies?.map((movie) => (
             <option key={movie._id} value={movie._id}>
               {movie.name}

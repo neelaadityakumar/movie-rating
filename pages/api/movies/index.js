@@ -11,7 +11,7 @@ export default async function handler(req, res) {
     }
 
     if (req.method === "POST") {
-      const { name, releaseDate, rating = null } = req.body;
+      const { name, releaseDate } = req.body;
 
       if (!name || !releaseDate) {
         return res
@@ -22,8 +22,7 @@ export default async function handler(req, res) {
       const newMovie = new MovieModel({
         name,
         releaseDate,
-        averageRating: rating,
-        reviews: [], // Initialize reviews as an empty array
+        reviews: [],
       });
 
       await newMovie.save();
