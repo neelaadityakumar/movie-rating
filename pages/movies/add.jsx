@@ -46,38 +46,44 @@ const AddMovie = () => {
   };
 
   return (
-    <div>
-      <h1>Add a Movie</h1>
+    <div className="container px-4 lg:px-6 max-w-[300px] mx-auto">
+      <h1 className="text-2xl font-500 mb-6 mt-10">Add a Movie </h1>{" "}
       <form onSubmit={handleSubmit}>
-        <label>
-          Name:
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-        </label>
+        <input
+          type="text"
+          value={name}
+          placeholder="Name"
+          className="mt-4 w-full max-w-[300px] px-2 py-1"
+          onChange={(e) => setName(e.target.value)}
+        />
         <br />
-        <label>
-          Release Date:
-          <input
-            type="date"
-            value={releaseDate}
-            onChange={(e) => setReleaseDate(e.target.value)}
-          />
-        </label>
+
+        <input
+          type="date"
+          value={releaseDate}
+          placeholder="Release Date"
+          className="mt-4 w-full max-w-[300px] px-2 py-1"
+          onChange={(e) => setReleaseDate(e.target.value)}
+        />
         <br />
-        <label>
-          Average rating :
-          <input
-            type="number"
-            max={10}
-            value={rating}
-            onChange={(e) => setRating(e.target.value)}
-          />
-        </label>{" "}
+
+        <input
+          type="number"
+          max={10}
+          value={rating}
+          placeholder="Rating out of 10"
+          className="my-4 w-full max-w-[300px] px-2 py-1"
+          onChange={(e) => setRating(e.target.value)}
+        />
         <br />
-        <button type="submit">Add Movie</button>
+        <div className="flex justify-end">
+          <button
+            type="submit"
+            className="   rounded hover:underline py-2 px-4 text-white bg-[#6558F5]"
+          >
+            Create Movie
+          </button>
+        </div>
       </form>
     </div>
   );

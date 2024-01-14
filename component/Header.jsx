@@ -5,8 +5,8 @@ import Link from "next/link";
 
 const Header = () => {
   return (
-    <header className="bg-[#E3E8ED] p-4 text-[#444] flex justify-between items-center">
-      <Link href={"/"} className="text-2xl font-bold">
+    <header className="bg-[#E3E8ED] p-4 text-[#444] flex flex-col sm:flex-row justify-between items-center">
+      <Link href={"/"} className="text-2xl font-bold mb-4 sm:mb-0">
         MOVIECRITIC
       </Link>
       <div className="flex gap-4">
